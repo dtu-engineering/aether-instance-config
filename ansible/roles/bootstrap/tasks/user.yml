@@ -1,0 +1,50 @@
+---
+# User configuration tasks
+
+- name: SSH - enable password authentication
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PasswordAuthentication.*no'
+    line: 'PasswordAuthentication=yes'
+  become: true
+
+- name: SSH - check if cloud image settings exists
+  stat:
+    path: /etc/ssh/sshd_config.d/60-cloudimg-settings.conf
+  register: cloudimg_settings
+
+- name: SSH - enable password authentication - cloud image settings
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config.d/60-cloudimg-settings.conf
+    regexp: '^PasswordAuthentication.*no'
+    line: 'PasswordAuthentication=yes'
+  become: true
+  when: cloudimg_settings.stat.exists
+
+- name: SSH - restart service
+  ansible.builtin.service:
+    name: ssh
+    state: restarted
+  become: true
+  become_user: root
+
+- name: User - Create
+  ansible.builtin.shell: adduser "{{ dtu_instance_user }}" --disabled-password --gecos ""
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: root
+
+- name: User - set password
+  ansible.builtin.shell: echo "{{ dtu_instance_user }}":"{{ dtu_instance_password }}" | chpasswd
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: root
+
+- name: User - Update Permissions
+  ansible.builtin.shell: 'usermod -aG sudo {{ dtu_instance_user }}'
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: root

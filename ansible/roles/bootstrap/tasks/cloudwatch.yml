@@ -1,0 +1,74 @@
+---
+# Install CloudWatch Agent
+- name: Cloudwatch Agent - Install
+  ansible.builtin.shell: |
+    wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+    sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
+
+- name: Cloudwatch Agent - Permissions
+  ansible.builtin.shell: |
+    usermod -aG adm cwagent
+
+
+- name: Instance Metadata - Get IMDSv2 Token
+  ansible.builtin.uri:
+    url: http://169.254.169.254/latest/api/token
+    method: PUT
+    headers:
+      X-aws-ec2-metadata-token-ttl-seconds: 3600
+    return_content: true
+  register: imds_v2_token
+
+- name: Instance Metadata - Get Instance ID
+  ansible.builtin.uri:
+    url: http://169.254.169.254/latest/meta-data/instance-id
+    headers:
+      X-aws-ec2-metadata-token: '{{ imds_v2_token.content }}'
+    return_content: true
+  register: instance_id
+
+# See - https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-Configuration-File-Details.html
+- name: Cloudwatch Agent - Create Configuration
+  ansible.builtin.shell: |
+    bash -c "cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json" <<'EOF'
+    {
+      "agent": {
+        "metrics_collection_interval": 60,
+        "region": "{{ cloudwatch_log_group_region }}",
+        "run_as_user": "cwagent"
+      },
+      "logs": {
+        "logs_collected": {
+          "files": {
+            "collect_list": [
+              {
+                "file_path": "/tmp/bootstrap.log",
+                "log_group_name": "{{ cloudwatch_log_group_name }}",
+                "log_stream_name": "{{ instance_id.content }}/bootstrap",
+                "timestamp_format": "%b %d %H:%M:%S"
+              },
+              {
+                "file_path": "/tmp/acebox.log",
+                "log_group_name": "{{ cloudwatch_log_group_name }}",
+                "log_stream_name": "{{ instance_id.content }}/acebox",
+                "timestamp_format": "%b %d %H:%M:%S"
+              }
+            ]
+          }
+        }
+      }
+    }
+    EOF
+  args:
+    executable: /bin/bash
+
+- name: Cloudwatch Agent - Enable System Service
+  ansible.builtin.shell: |
+    systemctl enable amazon-cloudwatch-agent.service
+
+- name: Cloudwatch Agent - Start System Service
+  ansible.builtin.service:
+    name: amazon-cloudwatch-agent
+    state: started
+  become: true
+  become_user: root

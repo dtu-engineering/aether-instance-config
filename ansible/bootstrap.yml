@@ -1,0 +1,10 @@
+---
+# Playbook to complete all general Aether instance configuration tasks
+- name: Aether Instance - Bootstrap
+  hosts: localhost
+  connection: local
+  vars:
+    aether_config_file_path: './aether_config_vars.yml'
+  tasks:
+    - include_role:
+        name: bootstrap

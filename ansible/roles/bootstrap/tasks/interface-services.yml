@@ -1,0 +1,79 @@
+---
+# Tasks for Interface System Services
+
+- name: Interface Services - Start Script Create
+  ansible.builtin.lineinfile:
+    path: '{{ interface_service_start_script }}'
+    line: '#!/bin/bash'
+    create: true
+
+- name: Interface Services - Stop Script Create
+  ansible.builtin.lineinfile:
+    path: '{{ interface_service_stop_script }}'
+    line: '#!/bin/bash'
+    create: true
+
+- name: Interface Services - Start Script Update
+  ansible.builtin.lineinfile:
+    path: '{{ interface_service_start_script }}'
+    line: runuser -l {{ interface_user }} -c "TERMINAL_PATH={{ interface_nginx_path }} {{ interface_install_path }}/node_modules/pm2/bin/pm2 start {{ interface_install_path }}/interface.js"
+    create: true
+
+- name: Interface Services - Stop Script Create
+  ansible.builtin.lineinfile:
+    path: '{{ interface_service_stop_script }}'
+    line: runuser -l {{ interface_user }} -c "TERMINAL_PATH={{ interface_nginx_path }} {{ interface_install_path }}/node_modules/pm2/bin/pm2 stop {{ interface_install_path }}/interface.js"
+    create: true
+
+- name: Interface Services - System Service Configuration
+  ansible.builtin.blockinfile:
+    path: '{{ interface_system_service }}'
+    create: true
+    block: |
+      [Unit]
+      Description=Terminal Interface
+      Before=shutdown.target reboot.target
+
+      [Service]
+      Type=oneshot
+      ExecStart={{ interface_service_start_script }}
+      ExecStop={{ interface_service_stop_script }}
+      RemainAfterExit=yes
+
+      [Install]
+      WantedBy=multi-user.target
+  become: true
+  become_user: root
+
+- name: Interface Services - Make Scripts Executable
+  shell: |
+    chmod +x {{ interface_service_start_script }}
+    chmod +x {{ interface_service_stop_script }}
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: root
+
+- name: Interface Services - Enable System Service
+  shell: |
+    sudo systemctl daemon-reload
+    systemctl enable interface.service
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: root
+
+- name: Interface Services - Update Ownership of Files
+  shell: |
+    chown {{ interface_user }}:{{ interface_user }} {{ interface_install_path }} -R
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: root
+
+- name: Interface Services - Start interface.service
+  ansible.builtin.service:
+    name: interface.service
+    state: started
+  become: true
+  become_user: root

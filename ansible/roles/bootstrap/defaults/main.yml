@@ -1,0 +1,13 @@
+# Package Versions
+nodejs_version: 18
+
+# Interface defaults
+interface_nginx_path: '/interface'
+interface_service_start_script: '/usr/local/sbin/interface-start.sh'
+interface_service_stop_script: '/usr/local/sbin/interface-stop.sh'
+interface_system_service: '/etc/systemd/system/interface.service'
+interface_install_path: '/opt/interface'
+interface_user: 'interface-svc'
+
+# AWS CloudWatch defaults
+cloudwatch_log_group_region: 'us-east-1'

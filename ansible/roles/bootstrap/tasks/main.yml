@@ -1,0 +1,10 @@
+# Aether bootstrap role - All base configuration of the lab instance
+- include_vars: '{{ aether_config_file_path }}'
+- include_tasks:
+    file: cloudwatch.yml
+- include_tasks:
+    file: user.yml
+- include_tasks:
+    file: interface.yml
+- include_tasks:
+    file: interface-services.yml
