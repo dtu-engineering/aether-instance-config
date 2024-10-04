@@ -16,13 +16,13 @@
 - name: Interface Services - Start Script Update
   ansible.builtin.lineinfile:
     path: '{{ interface_service_start_script }}'
-    line: runuser -l {{ interface_user }} -c "TERMINAL_PATH={{ interface_nginx_path }} {{ interface_install_path }}/node_modules/pm2/bin/pm2 start {{ interface_install_path }}/interface.js"
+    line: runuser -l {{ instance_user }} -c "TERMINAL_PATH={{ interface_nginx_path }} {{ interface_install_path }}/node_modules/pm2/bin/pm2 start {{ interface_install_path }}/interface.js"
     create: true
 
 - name: Interface Services - Stop Script Create
   ansible.builtin.lineinfile:
     path: '{{ interface_service_stop_script }}'
-    line: runuser -l {{ interface_user }} -c "TERMINAL_PATH={{ interface_nginx_path }} {{ interface_install_path }}/node_modules/pm2/bin/pm2 stop {{ interface_install_path }}/interface.js"
+    line: runuser -l {{ instance_user }} -c "TERMINAL_PATH={{ interface_nginx_path }} {{ interface_install_path }}/node_modules/pm2/bin/pm2 stop {{ interface_install_path }}/interface.js"
     create: true
 
 - name: Interface Services - System Service Configuration
@@ -65,7 +65,7 @@
 
 - name: Interface Services - Update Ownership of Files
   shell: |
-    chown {{ interface_user }}:{{ interface_user }} {{ interface_install_path }} -R
+    chown {{ instance_user }}:{{ instance_user }} {{ interface_install_path }} -R
   args:
     executable: /bin/bash
   become: true
