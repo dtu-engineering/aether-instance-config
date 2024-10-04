@@ -29,21 +29,21 @@
   become_user: root
 
 - name: User - Create
-  ansible.builtin.shell: adduser "{{ dtu_instance_user }}" --disabled-password --gecos ""
+  ansible.builtin.shell: adduser "{{ instance_user }}" --disabled-password --gecos ""
   args:
     executable: /bin/bash
   become: true
   become_user: root
 
 - name: User - set password
-  ansible.builtin.shell: echo "{{ dtu_instance_user }}":"{{ dtu_instance_password }}" | chpasswd
+  ansible.builtin.shell: echo "{{ instance_user }}":"{{ instance_password }}" | chpasswd
   args:
     executable: /bin/bash
   become: true
   become_user: root
 
 - name: User - Update Permissions
-  ansible.builtin.shell: 'usermod -aG sudo {{ dtu_instance_user }}'
+  ansible.builtin.shell: 'usermod -aG sudo {{ instance_user }}'
   args:
     executable: /bin/bash
   become: true

@@ -11,3 +11,7 @@ interface_user: 'interface-svc'
 
 # AWS CloudWatch defaults
 cloudwatch_log_group_region: 'us-east-1'
+
+# User defaults
+instance_user: 'dt_training'
+instance_password: 'dt_labs'
