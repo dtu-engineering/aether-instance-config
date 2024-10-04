@@ -1,5 +1,5 @@
 # Package Versions
-nodejs_version: 18
+nodejs_version: 20
 
 # Interface defaults
 interface_nginx_path: '/interface'
