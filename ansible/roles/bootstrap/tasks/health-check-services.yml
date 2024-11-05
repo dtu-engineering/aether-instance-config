@@ -1,0 +1,79 @@
+---
+# Tasks for Health Check System Services
+
+- name: Health Check Services - Start Script Create
+  ansible.builtin.lineinfile:
+    path: '{{ health_service_start_script }}'
+    line: '#!/bin/bash'
+    create: true
+
+- name: Health Check Services - Stop Script Create
+  ansible.builtin.lineinfile:
+    path: '{{ health_service_stop_script }}'
+    line: '#!/bin/bash'
+    create: true
+
+- name: Health Check Services - Start Script Update
+  ansible.builtin.lineinfile:
+    path: '{{ health_service_start_script }}'
+    line: runuser -l {{ instance_user }} -c "{{ health_install_path }}/node_modules/pm2/bin/pm2 start {{ health_install_path }}/health-check.js"
+    create: true
+
+- name: Health Check Services - Stop Script Create
+  ansible.builtin.lineinfile:
+    path: '{{ health_service_stop_script }}'
+    line: runuser -l {{ instance_user }} -c "{{ health_install_path }}/node_modules/pm2/bin/pm2 stop {{ health_install_path }}/health-check.js"
+    create: true
+
+- name: Health Check Services - System Service Configuration
+  ansible.builtin.blockinfile:
+    path: '{{ health_system_service }}'
+    create: true
+    block: |
+      [Unit]
+      Description=Health Check Service
+      Before=shutdown.target reboot.target
+
+      [Service]
+      Type=oneshot
+      ExecStart={{ health_service_start_script }}
+      ExecStop={{ health_service_stop_script }}
+      RemainAfterExit=yes
+
+      [Install]
+      WantedBy=multi-user.target
+  become: true
+  become_user: root
+
+- name: Health Check Services - Make Scripts Executable
+  shell: |
+    chmod +x {{ health_service_start_script }}
+    chmod +x {{ health_service_stop_script }}
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: root
+
+- name: Health Check Services - Enable System Service
+  shell: |
+    sudo systemctl daemon-reload
+    systemctl enable health-check.service
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: root
+
+- name: Health Check Services - Update Ownership of Files
+  shell: |
+    chown {{ instance_user }}:{{ instance_user }} {{ health_install_path }} -R
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: root
+
+- name: Health Check Services - Start health-check.service
+  ansible.builtin.service:
+    name: health-check.service
+    state: started
+  become: true
+  become_user: root

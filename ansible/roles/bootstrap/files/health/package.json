@@ -1,0 +1,10 @@
+{
+  "name": "health_check",
+  "version": "1.0.0",
+  "description": "Instance Health Check",
+  "dependencies": {
+    "@types/node": "^22.8.6",
+    "pm2": "^5.4.2",
+    "typescript": "^5.6.3"
+  }
+}

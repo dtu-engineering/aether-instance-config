@@ -1,0 +1,27 @@
+- name: Health Check - Restart Nginx Service
+  ansible.builtin.service:
+    name: nginx
+    state: restarted
+  become: true
+  become_user: root
+
+- name: Health Check - Copy Package Files
+  ansible.builtin.copy:
+    src: files/health/
+    dest: '{{ health_install_path }}'
+
+- name: Health Check - NPM Package Install
+  ansible.builtin.shell: npm i
+  args:
+    chdir: '{{ health_install_path }}'
+    executable: /bin/bash
+  become: true
+  become_user: root
+
+- name: Health Check - Compile
+  ansible.builtin.shell: tsc health-check.ts
+  args:
+    chdir: '{{ health_install_path }}'
+    executable: /bin/bash
+  become: true
+  become_user: root

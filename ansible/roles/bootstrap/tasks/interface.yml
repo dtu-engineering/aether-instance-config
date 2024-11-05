@@ -45,6 +45,9 @@
     upstream interface {
       server 127.0.0.1:5000;
     }
+    upstream health {
+      server 127.0.0.1:5001;
+    }
     server {
       listen 9080;
       server_name {{ public_ipv4.content }};
@@ -59,7 +62,7 @@
       }
       location /health {
         access_log off;
-        return 200 "healthy\n";
+        proxy_pass http://health;
       }
     }
     EOF
@@ -82,7 +85,7 @@
 
 - name: Interface - Copy Interface Package Files
   ansible.builtin.copy:
-    src: files/
+    src: files/interface/
     dest: '{{ interface_install_path }}'
 
 - name: Interface - NPM Package Install
