@@ -13,7 +13,7 @@ interface_user: 'interface-svc'
 health_nginx_path: '/interface'
 health_service_start_script: '/usr/local/sbin/health-start.sh'
 health_service_stop_script: '/usr/local/sbin/health-stop.sh'
-health_system_service: '/etc/systemd/system/health.service'
+health_system_service: '/etc/systemd/system/health-check.service'
 health_install_path: '/opt/health'
 
 # AWS CloudWatch defaults
