@@ -16,13 +16,13 @@
 - name: Health Check Services - Start Script Update
   ansible.builtin.lineinfile:
     path: '{{ health_service_start_script }}'
-    line: runuser -l {{ instance_user }} -c "{{ health_install_path }}/node_modules/pm2/bin/pm2 start {{ health_install_path }}/health-check.js"
+    line: '{{ health_install_path }}/node_modules/pm2/bin/pm2 start {{ health_install_path }}/health-check.js'
     create: true
 
 - name: Health Check Services - Stop Script Create
   ansible.builtin.lineinfile:
     path: '{{ health_service_stop_script }}'
-    line: runuser -l {{ instance_user }} -c "{{ health_install_path }}/node_modules/pm2/bin/pm2 stop {{ health_install_path }}/health-check.js"
+    line: '{{ health_install_path }}/node_modules/pm2/bin/pm2 stop {{ health_install_path }}/health-check.js'
     create: true
 
 - name: Health Check Services - System Service Configuration

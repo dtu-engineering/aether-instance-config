@@ -19,7 +19,7 @@
   become_user: root
 
 - name: Health Check - Compile
-  ansible.builtin.shell: tsc health-check.ts
+  ansible.builtin.shell: ./node_modules/typescript/bin/tsc health-check.ts
   args:
     chdir: '{{ health_install_path }}'
     executable: /bin/bash
