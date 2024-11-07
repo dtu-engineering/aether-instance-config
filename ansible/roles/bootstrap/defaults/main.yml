@@ -1,5 +1,5 @@
 # Package Versions
-nodejs_version: 20
+nodejs_version: 22
 
 # Interface defaults
 interface_nginx_path: '/interface'
@@ -8,6 +8,13 @@ interface_service_stop_script: '/usr/local/sbin/interface-stop.sh'
 interface_system_service: '/etc/systemd/system/interface.service'
 interface_install_path: '/opt/interface'
 interface_user: 'interface-svc'
+
+# Health check defaults
+health_nginx_path: '/interface'
+health_service_start_script: '/usr/local/sbin/health-start.sh'
+health_service_stop_script: '/usr/local/sbin/health-stop.sh'
+health_system_service: '/etc/systemd/system/health-check.service'
+health_install_path: '/opt/health'
 
 # AWS CloudWatch defaults
 cloudwatch_log_group_region: 'us-east-1'

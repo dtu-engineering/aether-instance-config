@@ -8,3 +8,7 @@
     file: interface.yml
 - include_tasks:
     file: interface-services.yml
+- include_tasks:
+    file: health-check.yml
+- include_tasks:
+    file: health-check-services.yml
