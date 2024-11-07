@@ -51,18 +51,17 @@ const requestHandler = async (req:http.IncomingMessage, res:http.ServerResponse)
       res.end(JSON.stringify(healthResponse));
     }
     if (healthResponse.status === 'UNHEALTHY') {
-      res.writeHead(503, { 'Content-Type': 'application/json' });
+      res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(healthResponse));
     }
     if (healthResponse.status === 'PENDING') {
-      res.writeHead(204, { 'Content-Type': 'application/json' });
+      res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(healthResponse));
     }
     else if (healthResponse.status === 'ERROR') {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(healthResponse));
     } 
-
   }
 }
 
