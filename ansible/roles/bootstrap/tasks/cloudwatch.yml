@@ -44,14 +44,26 @@
               {
                 "file_path": "/tmp/bootstrap.log",
                 "log_group_name": "{{ cloudwatch_log_group_name }}",
-                "log_stream_name": "{{ instance_id.content }}/bootstrap",
-                "timestamp_format": "%b %d %H:%M:%S"
+                "log_stream_name": "{{ instance_id.content }}/bootstrap"
               },
               {
                 "file_path": "/tmp/acebox.log",
                 "log_group_name": "{{ cloudwatch_log_group_name }}",
                 "log_stream_name": "{{ instance_id.content }}/acebox",
-                "timestamp_format": "%b %d %H:%M:%S"
+                "filters": [
+                  {
+                    "type": "exclude",
+                    "expression": "ghp_"
+                  },
+                  {
+                    "type": "exclude",
+                    "expression": "github_pat_"
+                  },
+                  {
+                    "type": "exclude",
+                    "expression": "dt0"
+                  }
+                ]
               }
             ]
           }
