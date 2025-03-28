@@ -9,29 +9,36 @@ interface healthCheckResponse {
 }
 
 const checkHealth = async (): Promise<healthCheckResponse> => {
-  const filePath = '/tmp/bootstrap.log'
-  const healthyLogString = 'Aether instance bootstrap SUCCESS'
-  const unhealthyLogString = 'Aether instance bootstrap FAILURE'
+  const filePath = '/var/tmp/aether_health_status.log'
+  const healthyLogString = '[INFO]'
+  const unhealthyLogString = '[FATAL]'
+  const disabledCheckLogString = 'AETHER_HEALTH_CHECK_ENABLED=false'
 
   try {
     const contents = await fs.readFile(filePath, {encoding:'utf8'})
 
+    if (contents.includes(disabledCheckLogString)){
+      return {
+        status: "NONE",
+        message: "Successful health checks are not required."
+      }
+    }
     if (contents.includes(healthyLogString)){
       return {
         status: "HEALTHY",
-        message: "Instance bootstrapping has completed successfully"
+        message: "Aether environment is healthy. All provisioning has completed successfully."
       }
     }
     if (contents.includes(unhealthyLogString)){
       return {
         status: "UNHEALTHY",
-        message: "Instance bootstrapping has encountered a failure"
+        message: "Aether environment is unhealthy. A fatal error has been encountered during instance userdata execution."
       }
     }
     else {
       return {
         status: "PENDING",
-        message: "No success or failure signal detected - Instance bootstrapping in progress"
+        message: "Aether environment configuration in progress."
       }
     }
   } catch (error) {
