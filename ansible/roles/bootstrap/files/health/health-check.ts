@@ -57,6 +57,10 @@ const requestHandler = async (req:http.IncomingMessage, res:http.ServerResponse)
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(healthResponse));
     }
+    if (healthResponse.status === 'NONE') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(healthResponse));
+    }
     if (healthResponse.status === 'UNHEALTHY') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(healthResponse));
