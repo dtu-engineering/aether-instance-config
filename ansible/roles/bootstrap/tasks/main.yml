@@ -3,6 +3,8 @@
 - include_tasks:
     file: cloudwatch.yml
 - include_tasks:
+    file: ssm-agent.yml
+- include_tasks:
     file: user.yml
 - include_tasks:
     file: interface.yml

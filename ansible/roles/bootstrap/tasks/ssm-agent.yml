@@ -1,0 +1,42 @@
+---
+- name: Ensure snapd is installed
+  apt:
+    name: snapd
+    state: present
+    update_cache: yes
+
+- name: Install amazon-ssm-agent via snap
+  community.general.snap:
+    name: amazon-ssm-agent
+    classic: yes
+    state: present
+
+- name: Enable SSM agent service
+  ansible.builtin.systemd:
+    name: snap.amazon-ssm-agent.amazon-ssm-agent.service
+    enabled: yes
+
+- name: Start SSM agent service
+  ansible.builtin.systemd:
+    name: snap.amazon-ssm-agent.amazon-ssm-agent.service
+    state: started
+
+- name: Set fs.file-max 
+  ansible.builtin.command: sysctl -w fs.file-max=100000
+  register: filemax
+  changed_when: "'=100000' in filemax.stdout"
+
+- name: Set fs.inotify.max_user_instances
+  ansible.builtin.command: sysctl -w fs.inotify.max_user_instances=256
+  register: inst
+  changed_when: "'=256' in inst.stdout"
+
+- name: Set fs.inotify.max_user_watches
+  ansible.builtin.command: sysctl -w fs.inotify.max_user_watches=16384
+  register: watches
+  changed_when: "'=16384' in watches.stdout"
+
+- name: Restart SSM agent service after sysctl changes
+  ansible.builtin.systemd:
+    name: snap.amazon-ssm-agent.amazon-ssm-agent.service
+    state: restarted
