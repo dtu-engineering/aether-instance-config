@@ -5,12 +5,10 @@
   become: true
   become_user: root
 
-- name: Node.js - Update apt source
-  ansible.builtin.shell: apt-get update && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
-  args:
-    executable: /bin/bash
-  become: true
-  become_user: root
+- name: Node.js - Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
 
 - name: Interface - Install Dependencies
   ansible.builtin.package:
