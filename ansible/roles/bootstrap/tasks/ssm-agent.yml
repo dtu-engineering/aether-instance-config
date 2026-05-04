@@ -1,16 +1,6 @@
 ---
 - block:
 
-    - name: Ensure snapd is installed
-      apt:
-        name: snapd
-        state: present
-        update_cache: yes
-      register: snapd_install
-      retries: 5
-      delay: 10
-      until: snapd_install is succeeded
-
     - name: Install amazon-ssm-agent via snap
       community.general.snap:
         name: amazon-ssm-agent
