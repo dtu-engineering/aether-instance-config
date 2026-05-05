@@ -38,7 +38,7 @@
 - name: Derive DTU environment type from EC2 Name tag
   set_fact:
     dtu_environment_type: >-
-      {% set name = (ec2_name.stdout | lower) %}
+      {% set name = (ec2_name.content | lower) %}
       {% if 'test' in name %}
       test
       {% elif 'certification' in name %}
@@ -49,23 +49,12 @@
       standard
       {% endif %}
 
-- name: Get ASG name
-  shell: |
-    aws autoscaling describe-auto-scaling-instances \
-      --region {{ ec2_region.content }} \
-      --instance-ids {{ ec2_instance_id.content }} \
-      --query 'AutoScalingInstances[0].AutoScalingGroupName' \
-      --output text
-  register: asg_name
-  changed_when: false
-
 - name: Set bizevent facts
   set_fact:
     bizevent_facts:
       aetherId: "{{ aether_id }}"
       ansible.playbook: "{{ ansible_playbook }}"
       aws.ec2.instance_id: "{{ ec2_instance_id.content }}"
-      aws.ec2.asg: "{{ asg_name.stdout }}"
       dtu.environment.type: "{{ dtu_environment_type }}"
       event.provider: "ansible"
       github.repo.url: "{{ github_repo_url }}"
