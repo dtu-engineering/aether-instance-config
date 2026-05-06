@@ -26,12 +26,12 @@
   register: ec2_region
 
 - name: Get EC2 Name tag
-  shell: |
-    aws ec2 describe-tags \
-      --region {{ ec2_region.content }} \
-      --filters "Name=resource-id,Values={{ ec2_instance_id.content }}" "Name=key,Values=Name" \
-      --query 'Tags[0].Value' \
-      --output text
+  uri:
+    url: http://169.254.169.254/latest/meta-data/tags/instance/Name
+    method: GET
+    headers:
+      X-aws-ec2-metadata-token: "{{ imds_token.content }}"
+    return_content: yes
   register: ec2_name
   changed_when: false
 

@@ -5,6 +5,10 @@
   vars:
     aether_config_file_path: './aether_config_vars.yml'
   tasks:
+    - name: Load aether config vars
+      include_vars:
+        file: "{{ aether_config_file_path }}"
+
     - name: Initialize bizevent facts
       include_role:
         name: bootstrap
