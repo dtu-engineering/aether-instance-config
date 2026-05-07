@@ -1,0 +1,61 @@
+- name: Get IMDSv2 token
+  uri:
+    url: http://169.254.169.254/latest/api/token
+    method: PUT
+    headers:
+      X-aws-ec2-metadata-token-ttl-seconds: "21600"
+    return_content: yes
+  register: imds_token
+
+- name: Get EC2 instance-id
+  uri:
+    url: http://169.254.169.254/latest/meta-data/instance-id
+    method: GET
+    headers:
+      X-aws-ec2-metadata-token: "{{ imds_token.content }}"
+    return_content: yes
+  register: ec2_instance_id
+
+- name: Get EC2 region
+  uri:
+    url: http://169.254.169.254/latest/meta-data/placement/region
+    method: GET
+    headers:
+      X-aws-ec2-metadata-token: "{{ imds_token.content }}"
+    return_content: yes
+  register: ec2_region
+
+- name: Get EC2 Name tag
+  uri:
+    url: http://169.254.169.254/latest/meta-data/tags/instance/Name
+    method: GET
+    headers:
+      X-aws-ec2-metadata-token: "{{ imds_token.content }}"
+    return_content: yes
+  register: ec2_name
+  changed_when: false
+
+- name: Derive DTU environment type from EC2 Name tag
+  set_fact:
+    dtu_environment_type: >-
+      {% set name = (ec2_name.content | lower) %}
+      {% if 'test' in name %}
+      test
+      {% elif 'certification' in name %}
+      certification
+      {% elif 'partner' in name %}
+      partner
+      {% else %}
+      standard
+      {% endif %}
+
+- name: Set bizevent facts
+  set_fact:
+    bizevent_facts:
+      aetherId: "{{ aether_id }}"
+      ansible.playbook: "{{ ansible_playbook }}"
+      aws.ec2.instance_id: "{{ ec2_instance_id.content }}"
+      dtu.environment.type: "{{ dtu_environment_type }}"
+      event.provider: "ansible"
+      github.repo.url: "{{ github_repo_url }}"
+      github.release.version: "{{ github_release_version }}"

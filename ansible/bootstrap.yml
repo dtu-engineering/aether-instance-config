@@ -1,10 +1,45 @@
 ---
-# Playbook to complete all general Aether instance configuration tasks
 - name: Aether Instance - Bootstrap
   hosts: localhost
   connection: local
   vars:
     aether_config_file_path: './aether_config_vars.yml'
   tasks:
-    - include_role:
+    - name: Load aether config vars
+      include_vars:
+        file: "{{ aether_config_file_path }}"
+
+    - name: Initialize bizevent facts
+      include_role:
         name: bootstrap
+        tasks_from: bizevent-set-facts.yml
+
+    - name: Send START business event
+      include_role:
+        name: bootstrap
+        tasks_from: bizevent-send.yml
+      vars:
+        bizevent_type: "aether-instance-bootstrap-start"
+        bizevent_category: "INFO"
+
+    - block:
+        - name: Run bootstrap role
+          include_role:
+            name: bootstrap
+            
+        - name: Send SUCCESS business event
+          include_role:
+            name: bootstrap
+            tasks_from: bizevent-send.yml
+          vars:
+            bizevent_type: "aether-instance-bootstrap-complete"
+            bizevent_category: "INFO"
+
+      rescue:
+        - name: Send FAILURE business event
+          include_role:
+            name: bootstrap
+            tasks_from: bizevent-send.yml
+          vars:
+            bizevent_type: "aether-instance-bootstrap-failure"
+            bizevent_category: "FAILURE"

@@ -1,0 +1,14 @@
+- name: Send Dynatrace business event
+  uri:
+    url: "{{ bizevent_tenant_url }}/api/v2/bizevents/ingest"
+    method: POST
+    headers:
+      Authorization: "Api-Token {{ bizevent_tenant_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      - "{{ bizevent_facts | combine({
+            'event.type': bizevent_type,
+            'event.category': bizevent_category
+          }) }}"
+    status_code: [200, 202]
