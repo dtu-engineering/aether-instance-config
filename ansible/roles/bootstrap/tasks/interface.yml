@@ -8,15 +8,15 @@
 - name: Node.js - Update apt cache
   ansible.builtin.apt:
     update_cache: true
-    cache_valid_time: 3600
+  become: true
+  become_user: root
 
 - name: Interface - Install Dependencies
-  ansible.builtin.package:
+  ansible.builtin.apt:
     name:
       - jq
       - nginx
       - nodejs
-      - npm
     state: present
   become: true
   become_user: root
@@ -71,9 +71,10 @@
   become_user: root
 
 - name: Interface - Remove Default Nginx Config
-  file:
+  ansible.builtin.file:
     path: '/etc/nginx/sites-enabled/default'
     state: absent
+  become: true
 
 - name: Interface - Restart Nginx Service
   ansible.builtin.service:
@@ -86,6 +87,7 @@
   ansible.builtin.copy:
     src: files/interface/
     dest: '{{ interface_install_path }}'
+  become: true
 
 - name: Interface - NPM Package Install
   ansible.builtin.shell: npm i
